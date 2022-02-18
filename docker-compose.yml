@@ -1,0 +1,110 @@
+version: "3.3"
+
+services:
+  clickhouse-zookeeper:
+    image: zookeeper
+    ports:
+      - "2181:2181"
+      - "2182:2182"
+    container_name: clickhouse-zookeeper
+    networks:
+      - clickhouse-cluster
+  clickhouse-master:
+    image: yandex/clickhouse-server
+    container_name: clickhouse-master
+    volumes:
+      - ./config/master-config.xml:/etc/clickhouse-server/config.xml
+      - ./config/users.xml:/etc/clickhouse-server/users.xml
+    ports:
+      - "9000:9000"
+      - "8123:8123"
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    networks:
+      - clickhouse-cluster
+    depends_on:
+      - clickhouse-zookeeper
+      - clickhouse-slave-01
+      - clickhouse-slave-02
+      - clickhouse-slave-03
+      - clickhouse-slave-04
+  clickhouse-slave-01:
+    image: yandex/clickhouse-server
+    container_name: clickhouse-slave-01
+    volumes:
+      - ./config/slave01-config.xml:/etc/clickhouse-server/config.xml
+      - ./config/users.xml:/etc/clickhouse-server/users.xml
+    ports:
+      - "9001:9000"
+      - "8124:8123"
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    networks:
+      - clickhouse-cluster
+    depends_on:
+        - clickhouse-zookeeper
+  clickhouse-slave-02:
+    image: yandex/clickhouse-server
+    container_name: clickhouse-slave-02
+    volumes:
+      - ./config/slave02-config.xml:/etc/clickhouse-server/config.xml
+      - ./config/users.xml:/etc/clickhouse-server/users.xml
+    ports:
+      - "9002:9000"
+      - "8125:8123"
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    networks:
+      - clickhouse-cluster
+    depends_on:
+        - clickhouse-zookeeper
+  clickhouse-slave-03:
+    image: yandex/clickhouse-server
+    container_name: clickhouse-slave-03
+    volumes:
+      - ./config/slave03-config.xml:/etc/clickhouse-server/config.xml
+      - ./config/users.xml:/etc/clickhouse-server/users.xml
+    ports:
+      - "9003:9000"
+      - "8126:8123"
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    networks:
+      - clickhouse-cluster
+    depends_on:
+        - clickhouse-zookeeper
+  clickhouse-slave-04:
+    image: yandex/clickhouse-server
+    container_name: clickhouse-slave-04
+    volumes:
+      - ./config/slave04-config.xml:/etc/clickhouse-server/config.xml
+      - ./config/users.xml:/etc/clickhouse-server/users.xml
+    ports:
+      - "9004:9000"
+      - "8127:8123"
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    networks:
+      - clickhouse-cluster
+    depends_on:
+      - clickhouse-zookeeper
+  clickhouse-php-client:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: clickhouse-php-client
+    networks:
+      - clickhouse-cluster
+networks:
+  clickhouse-cluster:
+    driver: bridge

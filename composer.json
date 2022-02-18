@@ -1,0 +1,7 @@
+{
+    "name": "www-data/clickhouse",
+    "require": {
+        "php": "^7.4|^8.0",
+        "smi2/phpclickhouse": "^1.4"
+    }
+}
