@@ -16,8 +16,8 @@ $options = [
 ];
 
 echo "Cluster $cluster initialization started\n";
-foreach ($clusterNodes['slaves'] as $key => $slaveConfig) {
-    $connection = getConnection($slaveConfig, $options);
+foreach ($clusterNodes as $key => $config) {
+    $connection = getConnection($config, $options);
 
     try {
         $connection->write("CREATE DATABASE IF NOT EXISTS $database");
@@ -36,13 +36,13 @@ foreach ($clusterNodes['slaves'] as $key => $slaveConfig) {
             ORDER BY order_id
         ");
 
-        echo "Slave " . $key + 1 . " initialized\n";
+        echo "Node " . $key + 1 . " initialized\n";
     } catch (Throwable $throwable) {
         die($throwable->getMessage());
     }
 }
 
-$connection = getConnection($clusterNodes['master'], $options);
+$connection = getConnection(array_shift($clusterNodes), $options);
 
 try {
     $connection->write("CREATE DATABASE IF NOT EXISTS $database");
@@ -59,7 +59,7 @@ try {
         ENGINE = Distributed($cluster, $database, $tableName, $shardKey)
     ");
 
-    echo "Master initialized\n";
+    echo "Distributed table is initialized\n";
 } catch (Throwable $throwable) {
     die($throwable->getMessage());
 }

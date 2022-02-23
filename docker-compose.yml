@@ -1,23 +1,24 @@
 version: "3.3"
 
 services:
-  clickhouse-zookeeper:
+  zookeeper-node-01:
     image: zookeeper
+    container_name: zookeeper-node-01
     ports:
       - "2181:2181"
       - "2182:2182"
-    container_name: clickhouse-zookeeper
     networks:
       - clickhouse-cluster
-  clickhouse-master:
+  clickhouse-node-01:
     image: yandex/clickhouse-server
-    container_name: clickhouse-master
+    container_name: clickhouse-node-01
     volumes:
-      - ./config/master-config.xml:/etc/clickhouse-server/config.xml
+      - ./config/node-01-config.xml:/etc/clickhouse-server/config.xml
       - ./config/users.xml:/etc/clickhouse-server/users.xml
     ports:
       - "9000:9000"
       - "8123:8123"
+      - "9363:9363"
     ulimits:
       nofile:
         soft: 262144
@@ -25,20 +26,17 @@ services:
     networks:
       - clickhouse-cluster
     depends_on:
-      - clickhouse-zookeeper
-      - clickhouse-slave-01
-      - clickhouse-slave-02
-      - clickhouse-slave-03
-      - clickhouse-slave-04
-  clickhouse-slave-01:
+      - zookeeper-node-01
+  clickhouse-node-02:
     image: yandex/clickhouse-server
-    container_name: clickhouse-slave-01
+    container_name: clickhouse-node-02
     volumes:
-      - ./config/slave01-config.xml:/etc/clickhouse-server/config.xml
+      - ./config/node-02-config.xml:/etc/clickhouse-server/config.xml
       - ./config/users.xml:/etc/clickhouse-server/users.xml
     ports:
       - "9001:9000"
       - "8124:8123"
+      - "9364:9363"
     ulimits:
       nofile:
         soft: 262144
@@ -46,12 +44,12 @@ services:
     networks:
       - clickhouse-cluster
     depends_on:
-        - clickhouse-zookeeper
-  clickhouse-slave-02:
+      - zookeeper-node-01
+  clickhouse-node-03:
     image: yandex/clickhouse-server
-    container_name: clickhouse-slave-02
+    container_name: clickhouse-node-03
     volumes:
-      - ./config/slave02-config.xml:/etc/clickhouse-server/config.xml
+      - ./config/node-03-config.xml:/etc/clickhouse-server/config.xml
       - ./config/users.xml:/etc/clickhouse-server/users.xml
     ports:
       - "9002:9000"
@@ -63,12 +61,12 @@ services:
     networks:
       - clickhouse-cluster
     depends_on:
-        - clickhouse-zookeeper
-  clickhouse-slave-03:
+      - zookeeper-node-01
+  clickhouse-node-04:
     image: yandex/clickhouse-server
-    container_name: clickhouse-slave-03
+    container_name: clickhouse-node-04
     volumes:
-      - ./config/slave03-config.xml:/etc/clickhouse-server/config.xml
+      - ./config/node-04-config.xml:/etc/clickhouse-server/config.xml
       - ./config/users.xml:/etc/clickhouse-server/users.xml
     ports:
       - "9003:9000"
@@ -80,24 +78,7 @@ services:
     networks:
       - clickhouse-cluster
     depends_on:
-        - clickhouse-zookeeper
-  clickhouse-slave-04:
-    image: yandex/clickhouse-server
-    container_name: clickhouse-slave-04
-    volumes:
-      - ./config/slave04-config.xml:/etc/clickhouse-server/config.xml
-      - ./config/users.xml:/etc/clickhouse-server/users.xml
-    ports:
-      - "9004:9000"
-      - "8127:8123"
-    ulimits:
-      nofile:
-        soft: 262144
-        hard: 262144
-    networks:
-      - clickhouse-cluster
-    depends_on:
-      - clickhouse-zookeeper
+      - zookeeper-node-01
   clickhouse-php-client:
     build:
       context: .

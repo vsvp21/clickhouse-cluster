@@ -622,16 +622,41 @@
     <!-- Configuration of clusters that could be used in Distributed tables.
          https://clickhouse.com/docs/en/operations/table_engines/distributed/
       -->
+    <remote_servers>
+        <click_cluster>
+            <shard>
+                <internal_replication>true</internal_replication>
+                <replica>
+                    <host>clickhouse-node-01</host>
+                    <port>9000</port>
+                </replica>
+                <replica>
+                    <host>clickhouse-node-02</host>
+                    <port>9000</port>
+                </replica>
+            </shard>
+            <shard>
+                <internal_replication>true</internal_replication>
+                <replica>
+                    <host>clickhouse-node-03</host>
+                    <port>9000</port>
+                </replica>
+                <replica>
+                    <host>clickhouse-node-04</host>
+                    <port>9000</port>
+                </replica>
+            </shard>
+        </click_cluster>
+    </remote_servers>
     <zookeeper>
         <node index="1">
-            <host>clickhouse-zookeeper</host>
+            <host>zookeeper-node-01</host>
             <port>2181</port>
         </node>
     </zookeeper>
-
     <macros>
         <shard>01</shard>
-        <replica>clickhouse-slave-02</replica>
+        <replica>clickhouse-node-02</replica>
     </macros>
     <!-- The list of hosts allowed to use in URL-related storage engines and table functions.
         If this section is not present in configuration, all hosts are allowed.
@@ -750,7 +775,6 @@
         asynchronous_metrics - send data from table system.asynchronous_metrics
         status_info - send data from different component from CH, ex: Dictionaries status
     -->
-    <!--
     <prometheus>
         <endpoint>/metrics</endpoint>
         <port>9363</port>
@@ -760,7 +784,6 @@
         <asynchronous_metrics>true</asynchronous_metrics>
         <status_info>true</status_info>
     </prometheus>
-    -->
 
     <!-- Query log. Used only for queries with setting log_queries = 1. -->
     <query_log>

@@ -1,6 +1,5 @@
 # Clickhouse cluster test setup
 ###Nodes:
-- 1 Master Node
 - 2 Shards, 2 Replicas for each shard
 - 1 Zookeeper
 
